@@ -2,6 +2,8 @@ import os
 from functools import partial
 from pathlib import Path
 
+os.environ.setdefault("NUMBA_CACHE_DIR", "/tmp/edge-numba-cache")
+
 import librosa
 import librosa as lr
 import numpy as np
@@ -47,6 +49,14 @@ def extract(fpath, skip_completed=True, dest_dir="aist_baseline_feats"):
         return
 
     data, _ = librosa.load(fpath, sr=SR)
+    audio_feature = extract_audio(data, audio_name)
+
+    #np.save(save_path, audio_feature)
+    return audio_feature, save_path
+
+
+def extract_audio(data, audio_name, max_frames=5 * FPS):
+    """Extract frame-aligned features from in-memory audio."""
 
     envelope = librosa.onset.onset_strength(y=data, sr=SR)  # (seq_len,)
     mfcc = librosa.feature.mfcc(y=data, sr=SR, n_mfcc=20).T  # (seq_len, 20)
@@ -62,9 +72,8 @@ def extract(fpath, skip_completed=True, dest_dir="aist_baseline_feats"):
 
     try:
         start_bpm = _get_tempo(audio_name)
-    except:
-        # determine manually
-        start_bpm = lr.beat.tempo(y=lr.load(fpath)[0])[0]
+    except (AssertionError, IndexError, ValueError):
+        start_bpm = lr.beat.tempo(y=data, sr=SR)[0]
 
     tempo, beat_idxs = librosa.beat.beat_track(
         onset_envelope=envelope,
@@ -81,12 +90,14 @@ def extract(fpath, skip_completed=True, dest_dir="aist_baseline_feats"):
         axis=-1,
     )
 
-    # chop to ensure exact shape
-    audio_feature = audio_feature[:5 * FPS]
-    assert (audio_feature.shape[0] - 5 * FPS) == 0, f"expected output to be ~5s, but was {audio_feature.shape[0] / FPS}"
+    if max_frames is not None:
+        audio_feature = audio_feature[:max_frames]
+        assert audio_feature.shape[0] == max_frames, (
+            f"expected output to be ~{max_frames / FPS}s, "
+            f"but was {audio_feature.shape[0] / FPS}"
+        )
 
-    #np.save(save_path, audio_feature)
-    return audio_feature, save_path
+    return audio_feature
 
 
 def extract_folder(src, dest):

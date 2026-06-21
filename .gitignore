@@ -1,17 +1,60 @@
-train/
-test/
-edge_aistpp/
-dataset_backups/
-runs/
-wandb/
-renders/
-.ipynb_checkpoints/
+# Python and local tooling
 __pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.ipynb_checkpoints/
+.idea/
+.vscode/
+.DS_Store
+
+# Local publication/reference drafts
+/InteractMove-README.md
+/_ECCV2026_Atomic_Dance_Camera_-2.pdf
+
+# Environments and experiment tracking
+.env
+.venv/
+venv/
+wandb/
+runs/
+
+# Datasets and licensed assets
+/train/
+/test/
+/edge_aistpp/
+/data/edge_aistpp/
+/data/atomic_aistpp/
+/genre/
+/dataset_backups/
+/smpl/
+/custom_music/
+
+# Evaluation caches, generated motions, and metric outputs
+/eval/evaluate-old.py
+/eval/eval_pfc.py
+/eval/*cache*/
+/eval/*generated*/
+/eval/generated_*/
+/eval/results*.json
+/eval/*results*.json
+/cached_features/
+/renders/
+
+# Model checkpoints and generated/binary data
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.npy
+*.npz
+*.wav
+*.mp3
+*.zip
+*.tar
+*.tar.gz
 *.gif
 *.mp4
-*.pkl
-*.pt
-*.npy
-*.zip
-cached_features/
-custom_music/
