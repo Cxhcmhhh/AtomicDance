@@ -16,13 +16,8 @@ from infer_atomic import (
 def evaluate(
     prediction_features,
     ground_truth_features,
-    prediction_motions=None,
-    ground_truth_motions=None,
-    seed=0,
-    motion_names=None,
 ):
-    metrics = quantized_metrics(prediction_features, ground_truth_features)
-    return metrics
+    return quantized_metrics(prediction_features, ground_truth_features)
 
 
 def _motion_names(motion_dir, include_names=None):
@@ -185,7 +180,6 @@ def parse_args():
         help="use predicted planner labels or oracle labels for completion",
     )
     parser.add_argument("--ground-truth-labels", action="store_true")
-    parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--output", default="eval/results.json")
     return parser.parse_args()
 
@@ -266,14 +260,7 @@ def main(options):
         evaluation_names,
         options.max_inference_frames if inferred_names is not None else None,
     )
-    metrics = evaluate(
-        prediction_features,
-        ground_truth_features,
-        prediction_motions,
-        None,
-        options.seed,
-        evaluation_names,
-    )
+    metrics = evaluate(prediction_features, ground_truth_features)
     output = Path(options.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(str(output), "w") as handle:

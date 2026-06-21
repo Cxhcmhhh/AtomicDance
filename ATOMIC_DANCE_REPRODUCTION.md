@@ -64,20 +64,6 @@ Run them in the EDGE training environment with:
 python -m unittest tests/test_atomic.py -v
 ```
 
-## AIST++ preprocessing
-
-Top-level `genre_llm` categories `0..99` map to planner labels `1..100`.
-Unclassified I3D segments use the transition label `0`. Generate the indexed,
-frame-aligned baseline-feature dataset with:
-
-```bash
-python -m dataset.preprocess_atomic_aistpp --workers 16
-```
-
-The output under `data/atomic_aistpp/{train,test}` uses memory-mapped NumPy
-arrays for motion, music, and labels, plus `names.json`. The loader retains
-compatibility with the original directory-per-sample layout.
-
 ## Training
 
 Both stages support bounded debug runs, validation sampling, checkpointing,
@@ -111,8 +97,8 @@ CUDA_VISIBLE_DEVICES=1 python -m eval.evaluate \
   --ground-truth-motions data/edge_aistpp/motions \
   --audio-dir data/edge_aistpp/wavs \
   --plan-source planner \
-  --planner-checkpoint runs/atomic_planner/planner_epoch20_step22180.pt \
-  --completion-checkpoint runs/atomic_completion/completion_epoch20_step88680.pt \
+  --planner-checkpoint runs/atomic_planner/planner.pt \
+  --completion-checkpoint runs/atomic_completion/completion.pt \
   --sequence-list data/splits/test.txt \
   --smpl-model smpl/SMPL_MALE.pkl \
   --device cuda:0 \
@@ -131,7 +117,7 @@ CUDA_VISIBLE_DEVICES=1 python -m eval.evaluate \
   --ground-truth-motions data/edge_aistpp/motions \
   --audio-dir data/edge_aistpp/wavs \
   --plan-source ground-truth \
-  --completion-checkpoint runs/atomic_completion/completion_epoch20_step88680.pt \
+  --completion-checkpoint runs/atomic_completion/completion.pt \
   --sequence-list data/splits/test.txt \
   --smpl-model smpl/SMPL_MALE.pkl \
   --max-inference-frames 150 \
@@ -152,8 +138,7 @@ debugging; repeated argmax can collapse the plan after post-processing.
 
 ## Data split
 
-`dataset/preprocess_atomic_aistpp.py` preserves the directory split under
-`genre/aist/i3d_18_segmentation/{train,test}`. The resulting indexed dataset is:
+The released indexed dataset has the following split:
 
 | split | 150-frame slices | source sequences |
 |---|---:|---:|
@@ -167,13 +152,12 @@ uses `data/atomic_aistpp/train`; in-training validation uses all 372 samples in
 subset in `data/splits/crossmodal_test.txt`; all 20 are contained in the atomic
 test split.
 
-The unified output contains kinetic/manual FID and diversity, predicted/GT
-BAS, and predicted PFC. Generated PKLs must contain EDGE's `full_pose` field;
+The unified output contains kinetic/manual FID and diversity and predicted/GT
+BAS. Generated PKLs must contain EDGE's `full_pose` field;
 raw AIST++ PKLs may contain `smpl_poses`/`smpl_trans` or `q`/`pos`. Use
 `--force-extract` after changing source files in place. Existing feature roots
 can still be supplied with `--prediction-features` and
-`--ground-truth-features`. Add `--ground-truth-pfc` only when GT PKLs also
-contain `full_pose`. Use `--max-inference-samples` and `--max-inference-frames`
+`--ground-truth-features`. Use `--max-inference-samples` and `--max-inference-frames`
 for a bounded smoke test, and `--overwrite-inference` to regenerate existing
 motion PKLs.
 

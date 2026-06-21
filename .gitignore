@@ -32,6 +32,7 @@ runs/
 /dataset_backups/
 /smpl/
 /custom_music/
+/dataset/preprocess_atomic_aistpp.py
 
 # Evaluation caches, generated motions, and metric outputs
 /eval/evaluate-old.py

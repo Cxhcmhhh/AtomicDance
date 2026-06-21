@@ -4,7 +4,7 @@
 [![Paper](https://img.shields.io/badge/Paper-PDF-red?style=plastic&logo=adobeacrobatreader&logoColor=red)](#)
 [![arXiv](https://img.shields.io/badge/arXiv-Coming_Soon-b31b1b.svg)](#)
 [![Project Page](https://img.shields.io/badge/Project-Page-blue?style=plastic&logo=githubpages&logoColor=blue)](#)
-[![Dataset](https://img.shields.io/badge/Dataset-Coming_Soon-yellow?style=plastic&logo=huggingface&logoColor=white)](#)
+[![Dataset](https://img.shields.io/badge/Google_Drive-Storage-dfa12b?style=flat&logo=googledrive&logoColor=white)](#https://drive.google.com/file/d/1ETsaetMMWeKV3_E3Lr40BdybAsUAG8WM/view?usp=sharing)
 [![Checkpoints](https://img.shields.io/badge/Checkpoints-Coming_Soon-green?style=plastic)](#)
 [![YouTube](https://img.shields.io/badge/YouTube-Coming_Soon-red?style=plastic&logo=youtube&logoColor=red)](#)
 
@@ -14,7 +14,7 @@ This repository is the official PyTorch implementation of the paper
 **Xinhao Cai**, **Yixuan Sun**, **Minghang Zheng**, **Qingchao Chen**,
 **Xin Jin**, **Song-chun Zhu**, and **Yang Liu**
 
-[Paper](#) | [arXiv](#) | [Project](#) | [Dataset](#) |
+[Paper](#) | [arXiv](#) | [Project](#) | [Dataset](#https://drive.google.com/file/d/1ETsaetMMWeKV3_E3Lr40BdybAsUAG8WM/view?usp=sharing) |
 [Checkpoints](#) | [YouTube](#)
 
 Music-driven dance generation should produce motion that is rhythmically
@@ -33,6 +33,8 @@ and synthesizes smooth, musically aligned transitions. The explicit symbolic
 plan also enables users to replace movements, adjust durations, and edit dance
 structure without retraining.
 
+Our paper was accepted by ECCV 2026.
+
 <!-- Add the public teaser/framework image here when available.
 <div align="center">
   <img src="assets/teaser.png" width="90%">
@@ -50,8 +52,8 @@ inference.
 1. Create the Conda environment.
 
 ```bash
-conda create -n edge python=3.7 -y
-conda activate edge
+conda create -n atomicdance python=3.7 -y
+conda activate atomicdance
 ```
 
 2. Install the dependencies.
@@ -66,40 +68,36 @@ PyTorch3D 0.7.1 separately with the matching CUDA toolchain.
 
 ### Data Preparation
 
-The implementation uses AIST++ motion/music data and atomic movement labels.
-These assets, SMPL models, generated features, and checkpoints are not included
-in this repository.
-
-Arrange the files as follows:
+Download the processed atomic dataset from [Dataset](#https://drive.google.com/drive/folders/1r707t1FKhs_FkHNkNbqtDxIaXiYMUZuq?usp=sharing) and extract it under
+`data/atomic_aistpp/`. No additional label preprocessing is required.
 
 ```text
-data/edge_aistpp/
-  motions/                       # AIST++ motion PKLs
-  wavs/                          # AIST++ music WAVs
-genre/aist/
-  i3d_18_segmentation/           # train/test atomic segments
-  LLM_split_kmeans/
-    genre_llm/                   # LLM-refined atomic classes
-smpl/
-  SMPL_MALE.pkl                  # licensed SMPL body model
+data/atomic_aistpp/
+  manifest.json
+  normalizer.pt
+  train/
+    motion.npy
+    music.npy
+    labels.npy
+    names.json
+  test/
+    motion.npy
+    music.npy
+    labels.npy
+    names.json
 ```
 
-The AIST++ dataset can be obtained from its
-[official website](https://google.github.io/aistplusplus_dataset/). Download
-links for our atomic movement annotations will be added to the
-[Dataset](#) page.
+The released `atomic_aistpp` package is the only project-specific dataset that
+needs to be downloaded. It contains the frame-aligned motion, 35-dimensional
+music features, and atomic labels used for training and inference. Atomic labels
+`1..100` represent movement categories; label `0` represents a transition.
 
-Create the frame-aligned training data:
-
-```bash
-python -m dataset.preprocess_atomic_aistpp --workers 16
-```
-
-The processed arrays are written to `data/atomic_aistpp/{train,test}`. Motion
-uses the 151-dimensional EDGE representation at 30 FPS, music uses
-35-dimensional baseline features, and each training slice contains 150 frames.
-Atomic labels `1..100` represent movement categories; label `0` represents a
-transition.
+Evaluation against AIST++ ground truth additionally expects motion PKLs and WAVs
+under `data/edge_aistpp/{motions,wavs}`. Obtain AIST++ from its
+[official website](https://google.github.io/aistplusplus_dataset/) rather than
+from this project release. Feature extraction also requires the licensed SMPL
+model at `smpl/SMPL_MALE.pkl`; obtain it from the
+[official SMPL website](https://smpl.is.tue.mpg.de/).
 
 ## Training
 
@@ -137,12 +135,12 @@ every 20 epochs. Use `--resume CHECKPOINT` to continue training. Add
 ## Evaluation
 
 The unified evaluator performs motion generation, feature extraction, caching,
-and metric computation. It reports kinematic/manual-feature FID and diversity,
-Beat Alignment Score (BAS), and Physical Foot Contact (PFC). Prediction and
-ground-truth feature distributions are standardized independently following the
-provided evaluation starter.
+and metric computation. It reports kinematic/manual-feature FID and diversity
+and Beat Alignment Score (BAS). Prediction and ground-truth feature
+distributions are standardized independently following the provided evaluation
+starter.
 
-The commands below evaluate the 20 sequences in
+The commands below evaluate the sequences in
 `data/splits/crossmodal_test.txt`.
 
 ### Planner Plan + Dance Completion
@@ -169,35 +167,14 @@ CUDA_VISIBLE_DEVICES=0 python -m eval.evaluate \
   --output eval/results_planner.json
 ```
 
-### Ground-Truth Plan + Dance Completion
 
-This oracle setting bypasses the planner and evaluates the completion model
-with ground-truth atomic labels.
-
-```bash
-CUDA_VISIBLE_DEVICES=0 python -m eval.evaluate \
-  --ground-truth-motions data/edge_aistpp/motions \
-  --audio-dir data/edge_aistpp/wavs \
-  --sequence-list data/splits/crossmodal_test.txt \
-  --plan-source ground-truth \
-  --completion-checkpoint runs/atomic_completion/completion_epoch20_step88680.pt \
-  --atomic-data-root data/atomic_aistpp \
-  --smpl-model smpl/SMPL_MALE.pkl \
-  --device cuda:0 \
-  --max-inference-frames 150 \
-  --inference-batch-size 4 \
-  --workers 4 \
-  --inference-output eval/generated_gt_plan \
-  --cache-dir eval/cache_gt_plan \
-  --output eval/results_gt_plan.json
-```
 
 Add `--overwrite-inference --force-extract` to regenerate motions and features
 instead of reusing existing caches.
 
 ### Pretrained Checkpoints
 
-Pretrained checkpoints will be released at [Checkpoints](#). The expected
+Pretrained checkpoints will be released at [Checkpoints](##https://drive.google.com/drive/folders/1r707t1FKhs_FkHNkNbqtDxIaXiYMUZuq?usp=sharing). The expected
 layout is:
 
 ```text
@@ -207,16 +184,6 @@ runs/
   atomic_completion/
     completion_epoch20_step88680.pt
 ```
-
-## Tests
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-The tests cover atomic segmentation and refinement, indexed datasets,
-categorical planner diffusion, dance completion, two-stage inference, feature
-caching, and evaluation metrics.
 
 ## Citation
 

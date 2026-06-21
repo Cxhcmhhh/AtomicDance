@@ -24,10 +24,8 @@ from train_atomic import completion_model, planner_model, resolve_device
 from vis import SMPLSkeleton
 
 
-DEFAULT_PLANNER_CHECKPOINT = "runs/atomic_planner/planner_epoch20_step22180.pt"
-DEFAULT_COMPLETION_CHECKPOINT = (
-    "runs/atomic_completion/completion_epoch20_step88680.pt"
-)
+DEFAULT_PLANNER_CHECKPOINT = "runs/atomic_planner/planner.pt"
+DEFAULT_COMPLETION_CHECKPOINT = "runs/atomic_completion/completion.pt"
 
 
 def seed_everything(seed):

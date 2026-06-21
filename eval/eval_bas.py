@@ -5,14 +5,18 @@ from pathlib import Path
 import numpy as np
 
 
+
 def alignment_score(music_beats, motion_beats, sigma=3.0):
-    """Average Gaussian distance from each motion beat to the nearest music beat."""
+    """Return the project-scaled Gaussian beat-alignment score."""
     music_indices = np.flatnonzero(np.asarray(music_beats).reshape(-1))
     motion_indices = np.flatnonzero(np.asarray(motion_beats).reshape(-1))
     if len(music_indices) == 0 or len(motion_indices) == 0:
         return 0.0
     distances = np.abs(motion_indices[:, None] - music_indices[None, :]).min(axis=1)
-    return float(np.exp(-(distances.astype(np.float64) ** 2) / (2.0 * sigma ** 2)).mean())
+    raw_score = 0.5 * np.exp(
+        -(distances.astype(np.float64) ** 2) / (2.0 * sigma ** 2)
+    ).mean()
+    return float(raw_score)
 
 
 def _npy_files(directory):

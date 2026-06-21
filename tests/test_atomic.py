@@ -14,7 +14,6 @@ from dataset.atomic import (
     refine_plan,
 )
 from dataset.atomic_dataset import AtomicSequenceDataset, collate_atomic_sequences
-from dataset.preprocess_atomic_aistpp import labels_for_slice
 from model.atomic_completion import AtomicCompletionDecoder, AtomicCompletionDiffusion
 from model.atomic_planner import AtomicPlannerTransformer, UniformD3PM
 
@@ -94,20 +93,6 @@ class CompletionTests(unittest.TestCase):
 
 
 class AtomicDatasetTests(unittest.TestCase):
-    def test_unclassified_frames_default_to_transition(self):
-        segments = [
-            {"motion": 0, "start_frame": 0, "end_frame": 50},
-            {"motion": 1, "start_frame": 50, "end_frame": 150},
-        ]
-        assignments = {("train", "sample_slice0", 0, 0, 50): 7}
-
-        labels = labels_for_slice(
-            "train", "sample_slice0", segments, assignments
-        )
-
-        self.assertTrue(np.all(labels[:50] == 7))
-        self.assertTrue(np.all(labels[50:] == 0))
-
     def test_indexed_array_layout(self):
         with tempfile.TemporaryDirectory() as directory:
             split = "{}/train".format(directory)

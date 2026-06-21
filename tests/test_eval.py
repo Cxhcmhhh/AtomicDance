@@ -7,7 +7,6 @@ import numpy as np
 from scipy.io import wavfile
 
 from eval.eval_bas import alignment_score, calculate_bas
-from eval.eval_pfc import calculate_pfc, physical_score
 from eval.evaluate import evaluate, resolve_features
 from eval.extract_aist_features import load_keypoints
 from eval.metrics import normalize_separately
@@ -35,33 +34,24 @@ class EvaluationTests(unittest.TestCase):
             np.save(os.path.join(root, "music_features", name + ".npy"), music)
             np.save(os.path.join(root, "dance_features", name + ".npy"), dance)
 
-    def make_motion_root(self, root):
-        os.makedirs(root)
-        for index in range(2):
-            with open(os.path.join(root, "sample{}.pkl".format(index)), "wb") as handle:
-                pickle.dump({"full_pose": np.zeros((10, 24, 3), dtype=np.float32)}, handle)
-
-    def test_bas_and_pfc_edge_cases(self):
+    def test_bas_edge_cases(self):
         self.assertEqual(alignment_score(np.zeros(5), np.zeros(5)), 0.0)
-        self.assertEqual(physical_score(np.zeros((5, 24, 3))), 0.0)
+        beats = np.array([False, True, False, True])
+        self.assertEqual(alignment_score(beats, beats), 0.5)
 
     def test_unified_evaluation(self):
         with tempfile.TemporaryDirectory() as directory:
             prediction = os.path.join(directory, "prediction")
             ground_truth = os.path.join(directory, "ground_truth")
-            motions = os.path.join(directory, "motions")
             self.make_feature_root(prediction)
             self.make_feature_root(ground_truth)
-            self.make_motion_root(motions)
 
-            metrics = evaluate(prediction, ground_truth, motions, motions)
+            metrics = evaluate(prediction, ground_truth)
             self.assertAlmostEqual(metrics["fid_k"], 0.0, places=5)
             self.assertAlmostEqual(metrics["fid_m"], 0.0, places=5)
-            self.assertAlmostEqual(metrics["BAS_pred"], 1.0)
-            self.assertAlmostEqual(metrics["PFC_pred"], 0.0)
+            self.assertAlmostEqual(metrics["BAS_pred"], 0.5)
             self.assertTrue(all(np.isfinite(value) for value in metrics.values()))
-            self.assertAlmostEqual(calculate_bas(prediction), 1.0)
-            self.assertAlmostEqual(calculate_pfc(motions), 0.0)
+            self.assertAlmostEqual(calculate_bas(prediction), 0.5)
 
     def test_starter_normalizes_prediction_and_gt_separately(self):
         features = np.array(
