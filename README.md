@@ -4,8 +4,7 @@
 [![Paper](https://img.shields.io/badge/Paper-PDF-red?style=plastic&logo=adobeacrobatreader&logoColor=red)](#)
 [![arXiv](https://img.shields.io/badge/arXiv-Coming_Soon-b31b1b.svg)](#)
 [![Project Page](https://img.shields.io/badge/Project-Page-blue?style=plastic&logo=githubpages&logoColor=blue)](#)
-[![Dataset](https://img.shields.io/badge/Google_Drive-Storage-dfa12b?style=flat&logo=googledrive&logoColor=white)](#https://drive.google.com/file/d/1ETsaetMMWeKV3_E3Lr40BdybAsUAG8WM/view?usp=sharing)
-[![Checkpoints](https://img.shields.io/badge/Checkpoints-Coming_Soon-green?style=plastic)](#)
+[![Dataset](https://img.shields.io/badge/Google_Drive-Storage-dfa12b?style=flat&logo=googledrive&logoColor=white)](https://drive.google.com/file/d/1ETsaetMMWeKV3_E3Lr40BdybAsUAG8WM/view?usp=sharing)
 [![YouTube](https://img.shields.io/badge/YouTube-Coming_Soon-red?style=plastic&logo=youtube&logoColor=red)](#)
 
 This repository is the official PyTorch implementation of the paper
@@ -14,8 +13,7 @@ This repository is the official PyTorch implementation of the paper
 **Xinhao Cai**, **Yixuan Sun**, **Minghang Zheng**, **Qingchao Chen**,
 **Xin Jin**, **Song-chun Zhu**, and **Yang Liu**
 
-[Paper](#) | [arXiv](#) | [Project](#) | [Dataset](#https://drive.google.com/file/d/1ETsaetMMWeKV3_E3Lr40BdybAsUAG8WM/view?usp=sharing) |
-[Checkpoints](#) | [YouTube](#)
+[Paper](#) | [arXiv](#) | [Project](#) | [Dataset](https://drive.google.com/file/d/1ETsaetMMWeKV3_E3Lr40BdybAsUAG8WM/view?usp=sharing) | [YouTube](#)
 
 Music-driven dance generation should produce motion that is rhythmically
 synchronized with music while preserving coherent choreographic structure.
@@ -68,7 +66,7 @@ PyTorch3D 0.7.1 separately with the matching CUDA toolchain.
 
 ### Data Preparation
 
-Download the processed atomic dataset from [Dataset](#https://drive.google.com/drive/folders/1r707t1FKhs_FkHNkNbqtDxIaXiYMUZuq?usp=sharing) and extract it under
+Download the processed atomic dataset from [Dataset](https://drive.google.com/drive/folders/1r707t1FKhs_FkHNkNbqtDxIaXiYMUZuq?usp=sharing) and extract it under
 `data/atomic_aistpp/`. No additional label preprocessing is required.
 
 ```text
@@ -174,7 +172,7 @@ instead of reusing existing caches.
 
 ### Pretrained Checkpoints
 
-Pretrained checkpoints will be released at [Checkpoints](##https://drive.google.com/drive/folders/1r707t1FKhs_FkHNkNbqtDxIaXiYMUZuq?usp=sharing). The expected
+Pretrained checkpoints will be released at [Checkpoints](https://drive.google.com/drive/folders/1r707t1FKhs_FkHNkNbqtDxIaXiYMUZuq?usp=sharing). The expected
 layout is:
 
 ```text
