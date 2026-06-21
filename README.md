@@ -113,8 +113,6 @@ CUDA_VISIBLE_DEVICES=0 python train_atomic.py \
 
 ### Dance Completion Model
 
-The completion model is trained with ground-truth atomic labels and does not
-require planner predictions during training.
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train_atomic.py \
@@ -178,9 +176,9 @@ layout is:
 ```text
 runs/
   atomic_planner/
-    planner_epoch20_step22180.pt
+    planner_*.pt
   atomic_completion/
-    completion_epoch20_step88680.pt
+    completion_*.pt
 ```
 
 ## Citation
