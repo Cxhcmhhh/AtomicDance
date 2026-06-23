@@ -1,5 +1,7 @@
 # Music-to-Dance Generation via Atomic Movements
 
+**This repo is not the up-to-date version. Please refer to this [Link](https://github.com/oceanflowlab/AtomicDance) for the latest one.**
+
 <!-- Replace the # targets below when the public resources are available. -->
 [![Paper](https://img.shields.io/badge/Paper-PDF-red?style=plastic&logo=adobeacrobatreader&logoColor=red)](#)
 [![arXiv](https://img.shields.io/badge/arXiv-Coming_Soon-b31b1b.svg)](#)
